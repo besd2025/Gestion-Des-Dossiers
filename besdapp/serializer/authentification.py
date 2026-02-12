@@ -7,21 +7,14 @@ from besdapp.models.bureau import Bureau
 
 # --- 1. SÉRIALISEUR DE CONSULTATION (Affichage) ---
 class CustomUserSerializer(serializers.ModelSerializer):
-    # Ces champs permettent d'afficher les NOMS au lieu des simples IDs (ex: "BESD" au lieu de "1")
-    role_nom = serializers.ReadOnlyField(source='role.nom_role')
-    cellule_nom = serializers.ReadOnlyField(source='cellule.nom_cellule')
-    bureau_nom = serializers.ReadOnlyField(source='bureau.nom_bureau')
+    role = serializers.CharField(read_only = True)
+    bureau_cellule = serializers.CharField(read_only = True)
 
     class Meta:
         model = CustomUser
         fields = [
-            'id', 'nom', 'prenom', 
-            'role', 'role_nom', 'cellule', 'cellule_nom', 
-            'bureau', 'bureau_nom', 'date_creation', 'is_actif', 'last_login'
+            'id', 'nom', 'prenom', 'email','role','bureau_cellule'
         ]
-        # On s'assure que personne ne peut modifier la date de création
-        read_only_fields = ['date_creation', 'last_login']
-
 
 # --- 2. SÉRIALISEUR D'INSCRIPTION (Création) ---
 class RegisterSerializer(serializers.ModelSerializer):

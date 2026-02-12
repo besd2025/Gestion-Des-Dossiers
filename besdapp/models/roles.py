@@ -2,8 +2,7 @@ from django.db import models
 from .timestamp import TimeStamps
 from .soft_delete import SoftDeleteModel
 from .bureau import Bureau
-
-
+from .cellule import Cellule
 
 class Roles(TimeStamps,SoftDeleteModel,models.Model):
     SECRETARIAT = 'SECRETARIAT'
@@ -36,5 +35,5 @@ class RoleBureau(TimeStamps,SoftDeleteModel,models.Model):
 
 class RoleCellure(TimeStamps,SoftDeleteModel,models.Model):
     role = models.OneToOneField(to = Roles, on_delete=models.CASCADE, related_name="role_cellule",  related_query_name="role_cellule")
-    bureau = models.ForeignKey(to=Bureau, on_delete=models.CASCADE, related_name="cellule_role", related_query_name="cellule_role")
+    cellule = models.ForeignKey(to=Cellule, on_delete=models.CASCADE, related_name="cellule_role", related_query_name="cellule_role")
 
