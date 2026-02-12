@@ -4,4 +4,4 @@ from besdapp.models.cellule import Cellule
 class CelluleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cellule
-        fields = '__all__'
+        fields = ['id', 'nom', 'prenom', 'bureau', 'cellule', 'role']
