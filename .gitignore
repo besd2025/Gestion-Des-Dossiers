@@ -52,7 +52,6 @@ static/
 
 # Ignore all migrations
 **/migrations/*
-!**/migrations/__init__.py
 
 
 ####################################
