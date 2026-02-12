@@ -50,12 +50,10 @@ static/
 *.env
 .env.local
 
-####################################
-# Migrations (optionnel)
-# ⚠️ Ne pas ignorer en production !
-####################################
-*/migrations/*
-# !*/migrations/__init__.py
+# Ignore all migrations
+**/migrations/*
+!**/migrations/__init__.py
+
 
 ####################################
 # IDE
