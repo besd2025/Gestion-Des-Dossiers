@@ -1,0 +1,120 @@
+####################################
+# Python
+####################################
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+####################################
+# Virtual Environment
+####################################
+venv/
+env/
+ENV/
+.venv/
+
+####################################
+# Django
+####################################
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+media/
+staticfiles/
+static/
+
+####################################
+# Environment Variables
+####################################
+.env
+.env.*
+*.env
+.env.local
+
+####################################
+# Migrations (optionnel)
+# ⚠️ Ne pas ignorer en production !
+####################################
+# */migrations/*
+# !*/migrations/__init__.py
+
+####################################
+# IDE
+####################################
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+*.iml
+
+####################################
+# OS Files
+####################################
+.DS_Store
+Thumbs.db
+
+####################################
+# Testing / Coverage
+####################################
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+
+####################################
+# Docker
+####################################
+*.pid
+*.seed
+*.pid.lock
+docker-compose.override.yml
+
+####################################
+# Logs
+####################################
+logs/
+*.log
+
+####################################
+# Celery
+####################################
+celerybeat-schedule
+celerybeat.pid
+
+####################################
+# Sentry / Secrets
+####################################
+*.pem
+*.key
+*.crt
+
+####################################
+# Node (si frontend intégré)
+####################################
+node_modules/
+npm-debug.log
+yarn-error.log
