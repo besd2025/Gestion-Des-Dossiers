@@ -1,31 +1,19 @@
 from rest_framework import serializers
 # IMPORTATION DEPUIS LES MODELS (et non depuis lui-même)
 from besdapp.models.authentification import CustomUser 
-from besdapp.models.roles import Roles
-from besdapp.models.cellule import Cellule
-from besdapp.models.bureau import Bureau
 
 # --- 1. SÉRIALISEUR DE CONSULTATION (Affichage) ---
 class CustomUserSerializer(serializers.ModelSerializer):
-    # Ces champs permettent d'afficher les NOMS au lieu des simples IDs (ex: "BESD" au lieu de "1")
-    role_nom = serializers.ReadOnlyField(source='role.nom_role')
-    cellule_nom = serializers.ReadOnlyField(source='cellule.nom_cellule')
-    bureau_nom = serializers.ReadOnlyField(source='bureau.nom_bureau')
 
     class Meta:
         model = CustomUser
         fields = [
-            'id', 'nom', 'prenom', 
-            'role', 'role_nom', 'cellule', 'cellule_nom', 
-            'bureau', 'bureau_nom', 'date_creation', 'is_actif', 'last_login'
+            'id', 'nom', 'prenom', 'email'
         ]
-        # On s'assure que personne ne peut modifier la date de création
-        read_only_fields = ['date_creation', 'last_login']
-
+       
 
 # --- 2. SÉRIALISEUR D'INSCRIPTION (Création) ---
 class RegisterSerializer(serializers.ModelSerializer):
-    # Champ pour confirmer le mot de passe (ne sera pas stocké en base)
     password_confirm = serializers.CharField(
         write_only=True, 
         required=True,
@@ -35,13 +23,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            'email', 'password', 'password_confirm', 
-            'nom', 'prenom', 'role', 'cellule', 'bureau'
+            'email', 
+            'password', 
+            'password_confirm',  # <--- IL DOIT ÊTRE ICI AUSSI
+            'nom', 
+            'prenom'
         ]
         extra_kwargs = {
-            'password': {'write_only': True, 'style': {'input_type': 'password'}},
-            'nom': {'required': True},
-            'prenom': {'required': True}
+            'password': {'write_only': True},
         }
 
     def validate(self, data):
