@@ -54,7 +54,7 @@ static/
 # Migrations (optionnel)
 # ⚠️ Ne pas ignorer en production !
 ####################################
-# */migrations/*
+*/migrations/*
 # !*/migrations/__init__.py
 
 ####################################
