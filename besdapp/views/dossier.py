@@ -4,7 +4,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from besdapp.models.dossier import Dossier,EtatAvancement 
-from besdapp.serializer import DossierSerializer,EtatSerializer
+from besdapp.serializer import DossierSerializer
 from besdapp.filters import DossierFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -38,8 +38,8 @@ class DossierViewSet(viewsets.ModelViewSet):
         return Response({'total_dossiers': total })
     
     
-
-class EtatViewSet(viewsets.ModelViewSet):
-    serializer_class= EtatSerializer
-    queryset= EtatAvancement.objects.all() 
+# 
+# class EtatViewSet(viewsets.ModelViewSet):
+#     serializer_class= EtatSerializer
+#     queryset= EtatAvancement.objects.all() 
      

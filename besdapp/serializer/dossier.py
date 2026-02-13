@@ -10,7 +10,7 @@ class DossierSerializer(serializers.ModelSerializer):
         read_only_fields = ['date_creation'] # Dis à DRF de ne pas l'attendre dans le POST
 
 
-class EtatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model= EtatAvancement
-        fields=['Id_dossier', 'previous_state','Id_user_actual''commentaire']
+# class EtatSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model= EtatAvancement
+#         fields=['Id_dossier', 'previous_state','Id_user_actual''commentaire']
