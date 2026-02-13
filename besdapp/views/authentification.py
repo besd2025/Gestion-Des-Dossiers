@@ -32,10 +32,10 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         serializer = CustomUserSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    # --- ACTION 2 : Liste par Cellule ---
-    @action(detail=False, methods=['get'], url_path='user-cellule')
-    def user_cellule(self, request):
-        """Retourne la liste simplifiée : id, nom, prenom, bureau, cellule, role"""
-        queryset = CustomUser.objects.filter(user_cellule__isnull=False,user_cellule__cellule_bureau__isnull=False).annotate(cellule= F('user_cellule__nom_cellule'), bureau_role=F('user_cellule__cellule_bureau__buraeu__nom_bureau'))
-        serializer = CustomUserSerializer(queryset, many=True)
-        return Response(serializer.data)
+    # # --- ACTION 2 : Liste par Cellule ---
+    # @action(detail=False, methods=['get'], url_path='user-cellule')
+    # def user_cellule(self, request):
+    #     """Retourne la liste simplifiée : id, nom, prenom, bureau, cellule, role"""
+    #     queryset = CustomUser.objects.filter(user_cellule__isnull=False,user_cellule__cellule_bureau__isnull=False).annotate(cellule= F('user_cellule__nom_cellule'), bureau_role=F('user_cellule__cellule_bureau__buraeu__nom_bureau'))
+    #     serializer = CustomUserSerializer(queryset, many=True)
+    #     return Response(serializer.data)
