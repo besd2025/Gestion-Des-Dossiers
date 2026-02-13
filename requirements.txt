@@ -45,14 +45,6 @@ py-ubjson==0.16.1
 pyasn1==0.6.2
 pyasn1_modules==0.4.2
 pycparser==3.0
-<<<<<<< HEAD
-<<<<<<< HEAD
-pydotplus==2.0.2
-pygraphviz==1.14
-=======
->>>>>>> b0387e3313525059cb0a889c208ef0d6196ee68a
-=======
->>>>>>> c215ca05e68f98034cfc6436b92689c8ac75848a
 PyJWT==2.10.1
 pyOpenSSL==25.3.0
 pyparsing==3.2.5
