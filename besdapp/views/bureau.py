@@ -55,3 +55,8 @@ class BureauViewSet(viewsets.ModelViewSet):
 
 # c = CustomUser.objects.filter(Q(user_role__role_bureau__bureau__code_bureau="02")|Q(user_role__role_cellule__cellule__bureau__code
 # _bureau="02" ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))                                                                                         
+#     def user_bureau(self, request):
+#         """Retourne la liste simplifiée : id, nom, prenom, bureau, role"""
+#         queryset = CustomUser.objects.filter(user_role__isnull=False,user_role__role_bureau__isnull=False ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))
+#         serializer = CustomUserSerializer(queryset, many=True)
+#         return Response(serializer.data)
