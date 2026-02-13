@@ -26,7 +26,8 @@ class Roles(TimeStamps,SoftDeleteModel,models.Model):
     nom_role = models.CharField(
         max_length=50,
         choices=ROLE_CHOICES, 
-        default=CONSEILLER
+
+        default=CONSEILLER,
     )
 
 class RoleBureau(TimeStamps,SoftDeleteModel,models.Model):

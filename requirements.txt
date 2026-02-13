@@ -45,8 +45,11 @@ py-ubjson==0.16.1
 pyasn1==0.6.2
 pyasn1_modules==0.4.2
 pycparser==3.0
+<<<<<<< HEAD
 pydotplus==2.0.2
 pygraphviz==1.14
+=======
+>>>>>>> b0387e3313525059cb0a889c208ef0d6196ee68a
 PyJWT==2.10.1
 pyOpenSSL==25.3.0
 pyparsing==3.2.5
@@ -66,4 +69,5 @@ ujson==5.11.0
 urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.13
+
 zope.interface==8.2
