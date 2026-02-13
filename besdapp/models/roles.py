@@ -4,8 +4,6 @@ from .soft_delete import SoftDeleteModel
 from .bureau import Bureau
 from .cellule import Cellule
 
-
-
 class Roles(TimeStamps,SoftDeleteModel,models.Model):
     SECRETARIAT = 'SECRETARIAT'
     CHEF_BUREAU = 'CHEF_BUREAU'

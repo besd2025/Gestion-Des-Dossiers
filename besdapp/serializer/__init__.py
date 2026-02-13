@@ -5,3 +5,4 @@ from .dossier import *
 from .notification import *
 from .roles import *
 from .cellule import *
+from .etatavancement import *

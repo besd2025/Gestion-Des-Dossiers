@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 # CORRECTION : On importe la CLASSE Dossier depuis le FICHIER Dossier
-from besdapp.models.dossier import Dossier,EtatAvancement  
-from besdapp.serializer import DossierSerializer,EtatSerializer
+from besdapp.models.dossier import Dossier  
+from besdapp.serializer import DossierSerializer
 
 class DossierViewSet(viewsets.ModelViewSet):
     """
@@ -25,6 +25,3 @@ class DossierViewSet(viewsets.ModelViewSet):
         return Dossier.objects.filter(assigne_a=user).order_by('-date_creation')
     
 
-class EtatViewSet(viewsets.ModelViewSet):
-    serializer_class= EtatSerializer
-    queryset= EtatAvancement.objects.all()

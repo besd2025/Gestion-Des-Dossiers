@@ -17,7 +17,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nom', 'prenom', 'email','role','bureau_cellule'
         ]
-       
 
 # --- 2. SÉRIALISEUR D'INSCRIPTION (Création) ---
 class RegisterSerializer(serializers.ModelSerializer):
