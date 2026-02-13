@@ -17,7 +17,7 @@ class EtatAvancement(SoftDeleteModel,TimeStamps,models.Model):
         assign = "ASSIGN"
         send = "SEND"
         recu='RECU'
-        in_processing = 'en traitement'
+        in_processing = 'IN PROCESSING'
         validated = "VALIDATED"
         REJECT = "REJECT"
         IN_VALIDATION = "IN_VALIDATION"
