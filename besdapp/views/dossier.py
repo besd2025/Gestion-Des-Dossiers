@@ -38,7 +38,7 @@ class DossierViewSet(viewsets.ModelViewSet):
         return Response({'total_dossiers': total })
     
     
-# 
+
 # class EtatViewSet(viewsets.ModelViewSet):
 #     serializer_class= EtatSerializer
 #     queryset= EtatAvancement.objects.all() 
