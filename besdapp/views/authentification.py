@@ -2,12 +2,27 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from besdapp.models.authentification import CustomUser
-from besdapp.serializer import CustomUserSerializer, RegisterSerializer, BureauSerializer, CelluleSerializer  # N'oubliez pas d'importer ce nouveau serializer
+from besdapp.serializer import CustomUserSerializer, RegisterSerializer, BureauSerializer, CelluleSerializer,MyTokenObtainPairSerializer  # N'oubliez pas d'importer ce nouveau serializer
 from django.db.models import F
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import AllowAny,IsAuthenticated
 
+class LoginView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+    serializer_class = MyTokenObtainPairSerializer
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.filter(user_role__isnull=False).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))
+
+    def get_permissions(self):
+        """
+        Définit qui peut faire quoi :
+        - Inscription (create) : Tout le monde
+        - Consultations (list, user_bureau, etc.) : Utilisateurs avec Token JWT
+        """
+        if self.action == 'create':
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
         # 1. Sérialiseur pour la création

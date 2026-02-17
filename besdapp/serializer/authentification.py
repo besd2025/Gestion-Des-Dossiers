@@ -5,6 +5,8 @@ from besdapp.models.roles import Roles,RoleBureau,RoleCellure
 from besdapp.models.bureau import Bureau
 from besdapp.models.cellule import Cellule
 from django.db import transaction
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # --- 1. SÉRIALISEUR DE CONSULTATION (Affichage) ---
@@ -82,6 +84,28 @@ class RegisterSerializer(serializers.ModelSerializer):
                 role = RoleCellure.objects.create(role=role, cellule = cellule)
                 return user
 
-            
 
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Ajout des informations personnalisées dans le payload du JWT
+        token['nom'] = user.nom
+        token['prenom'] = user.prenom
+        try:
+            role_rel = user.user_role   # NO .first()
+            token['role'] = role_rel.role.name
+        except ObjectDoesNotExist:
+            token['role'] = None
+
+        return token
         
+        # # On récupère le nom du rôle (via votre relation user_role)
+        # # Note : adaptez 'user_role' selon le related_name de votre modèle Roles
+        # role_obj = user.user_role.first() 
+        # token['role'] = role_obj.nom_role if role_obj else "Aucun rôle"
+
+        # return token
+
+    
