@@ -14,29 +14,20 @@ class LoginView(TokenObtainPairView):
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.filter(user_role__isnull=False).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))
 
-    def get_permissions(self):
-        """
-        Définit qui peut faire quoi :
-        - Inscription (create) : Tout le monde
-        - Consultations (list, user_bureau, etc.) : Utilisateurs avec Token JWT
-        """
-        if self.action == 'create':
-            return [AllowAny()]
-        return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     """
+    #     Définit qui peut faire quoi :
+    #     - Inscription (create) : Tout le monde
+    #     - Consultations (list, user_bureau, etc.) : Utilisateurs avec Token JWT
+    #     """
+    #     # if self.action == 'create':
+    #     #     return [AllowAny()]
+    #     # return [IsAuthenticated()]
 
     def get_serializer_class(self):
         # 1. Sérialiseur pour la création
         if self.action == 'create':
             return RegisterSerializer
-        
-        # 2. Sérialiseur pour la liste par bureau
-        if self.action == 'user_bureau':
-            return BureauSerializer
-            
-        # 3. Sérialiseur pour la liste par cellule (Action 2)
-        if self.action == 'user_cellule':
-            return CelluleSerializer
-            
         return CustomUserSerializer
 
     # --- ACTION 1 : Liste par Bureau ---
