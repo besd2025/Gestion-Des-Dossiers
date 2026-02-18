@@ -5,6 +5,9 @@ from besdapp.models.roles import Roles,RoleBureau,RoleCellure
 from besdapp.models.bureau import Bureau
 from besdapp.models.cellule import Cellule
 from django.db import transaction
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.core.exceptions import ObjectDoesNotExist
+from besdapp.models import Roles
 
 
 # --- 1. SÉRIALISEUR DE CONSULTATION (Affichage) ---
@@ -82,6 +85,35 @@ class RegisterSerializer(serializers.ModelSerializer):
                 role = RoleCellure.objects.create(role=role, cellule = cellule)
                 return user
 
-            
 
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Ajout des informations personnalisées dans le payload du JWT
+        token['nom'] = user.nom
+        token['prenom'] = user.prenom
+        token['email'] =user.email
+    
         
+        try:
+            role_rel = user.user_role   # NO .first()
+            token["type_service"] = "Bureau" if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU] else "Secretariat" if  role_rel.nom_role == Roles.SECRETARIAT else "Cellule"
+            token['role'] = role_rel.nom_role
+            token["bureau"] =role_rel.role_bureau.bureau.nom_bureau if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT] else role_rel.role_cellule.cellule.bureau.nom_bureau
+            if role_rel.nom_role not in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT]:
+                token['cellule'] = role_rel.role_cellule.cellule.nom_cellule
+        except ObjectDoesNotExist:
+            token['role'] = None
+
+        return token
+        
+        # # On récupère le nom du rôle (via votre relation user_role)
+        # # Note : adaptez 'user_role' selon le related_name de votre modèle Roles
+        # role_obj = user.user_role.first() 
+        # token['role'] = role_obj.nom_role if role_obj else "Aucun rôle"
+
+        # return token
+
+    

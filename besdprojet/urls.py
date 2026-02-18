@@ -18,12 +18,14 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenRefreshView
+from besdapp.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('besdapp.urls')),
-    # Ajoutez cette ligne pour activer le bouton "Login" de DRF
-    # path('api-auth/', include('rest_framework.urls')),
+    path('api/login/', LoginView.as_view(), name='token_obtain_pair'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # ... vos routes
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

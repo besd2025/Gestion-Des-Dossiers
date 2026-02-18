@@ -48,7 +48,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_extensions',
     'django_filters',
+<<<<<<< HEAD
     'corsheaders'
+=======
+    'rest_framework_simplejwt',
+>>>>>>> e294b5ee98999d2e12166916d1b5d8ea32b73abc
     
     
 ]
@@ -93,15 +97,14 @@ CHANNEL_LAYERS = {
 
 # AUTH_USER_MODEL = 'besdapp'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.SessionAuthentication',
-#         'rest_framework.authentication.BasicAuthentication',
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated',
-#     ],
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', # <-- Ajoute cette ligne
+    ),
+}
 
 REST_FRAMEWORK = {
     

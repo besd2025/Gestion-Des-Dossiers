@@ -5,7 +5,7 @@ from .bureau import Bureau
 from .cellule import Cellule
 
 class Roles(TimeStamps,SoftDeleteModel,models.Model):
-    SECRETARIAT = 'SECRETARIAT'
+    SECRETARIAT = 'SECRETAIRE'
     CHEF_BUREAU = 'CHEF_BUREAU'
     CHEF_ADJOINT_BUREAU = 'CHEF_ADJOINT_BUREAU'
     CHEF_CELLULE = 'CHEF_CELLULE'
@@ -13,7 +13,7 @@ class Roles(TimeStamps,SoftDeleteModel,models.Model):
     CONSEILLER = 'CONSEILLER'
 
     ROLE_CHOICES = [
-        (SECRETARIAT, 'Secrétariat'),
+        (SECRETARIAT, 'Secrétaire'),
         (CHEF_BUREAU, 'Chef Bureau'),
         (CHEF_ADJOINT_BUREAU, 'Chef Adjoint Bureau'),
         (CHEF_CELLULE, 'Chef Cellule'),

@@ -1,3 +1,4 @@
+from .authentification import MyTokenObtainPairSerializer
 from .authentification import *
 from .bureau import *
 from .document import *
