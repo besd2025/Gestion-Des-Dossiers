@@ -37,6 +37,24 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         queryset = CustomUser.objects.filter(user_role__isnull=False,user_role__role_bureau__isnull=False ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))
         serializer = CustomUserSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def update_user(self, request, pk=None):
+        user=self.get_object()
+        user.is_actif = not user.is_actif 
+        user.save()
+        stat ="active" if user.is_actif else "desactive"
+        return Response({
+            'status':f'Utilisateur {stat} avec succès',
+            'est_active': user.is_actif  
+        })
+        
+    @action(detail=True, methods=['post'])
+    def deactivate(self, request, pk=None):
+       user = self.get_object()
+       user.is_actif = False
+       user.save()
+       return Response({'status': 'Utilisateur désactivé'}, status=status.HTTP_200_OK)
 
     # --- ACTION 2 : Liste par Cellule ---
     @action(detail=False, methods=['get'], url_path='user-cellule')

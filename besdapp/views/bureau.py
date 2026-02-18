@@ -1,6 +1,7 @@
+from django.db.models import F , Q
 from rest_framework import viewsets, permissions
-from besdapp.models import Bureau,Cellule,roles
-from besdapp.serializer import BureauSerializer,CelluleSerializer
+from besdapp.models import Bureau,Cellule,roles,CustomUser
+from besdapp.serializer import BureauSerializer,CelluleSerializer,CustomUserSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -36,13 +37,26 @@ class BureauViewSet(viewsets.ModelViewSet):
     })
     
     
-    # @action(detail=True, methods=['get'])
-    # def tUserBurRole(self, request,pk=None):
-    #     Bureau=roles.objects.filter()
-        
+    @action(detail=True, methods=['get'])
+    def All_User_BurRole(self, request,pk=None):
+        Alluserburole=CustomUser.objects.filter(Q(user_role__role_bureau__bureau__code_bureau="02")|Q(user_role__role_cellule__cellule__bureau__code_bureau="02")).annotate(nom_du_role=F('user_role__nom_role'),bureau_cellule=F('user_role__role_bureau__bureau__nom_bureau'))
+        serializer= CustomUserSerializer(Alluserburole, many=True)
+        return Response(serializer.data)
         
     
 # @action(detail=False, methods=['get'], url_path='user-bureau')
+# def user_bureau(self, request):
+#          """Retourne la liste simplifiée : id, nom, prenom, bureau, role"""
+#          queryset = CustomUser.objects.filter(user_role__isnull=False,user_role__role_bureau__isnull=False ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))
+#          serializer = CustomUserSerializer(queryset, many=True)
+#          return Response(serializer.data)
+     
+# c = CustomUser.objects.filter(Q(user_role__role_bureau__bureau__code_bureau="02")|Q(user_role__role_cellule__cellule__bureau__code
+# _bureau="02" ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))  
+            
+
+# c = CustomUser.objects.filter(Q(user_role__role_bureau__bureau__code_bureau="02")|Q(user_role__role_cellule__cellule__bureau__code
+# _bureau="02" ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))                                                                                         
 #     def user_bureau(self, request):
 #         """Retourne la liste simplifiée : id, nom, prenom, bureau, role"""
 #         queryset = CustomUser.objects.filter(user_role__isnull=False,user_role__role_bureau__isnull=False ).annotate(role = F('user_role__nom_role'), bureau_cellule = F('user_role__role_bureau__bureau__nom_bureau'))

@@ -114,7 +114,7 @@ class DossierViewSet(viewsets.ModelViewSet):
         
     
     
-# 
+
 # class EtatViewSet(viewsets.ModelViewSet):
 #     serializer_class= EtatSerializer
 #     queryset= EtatAvancement.objects.all() 
