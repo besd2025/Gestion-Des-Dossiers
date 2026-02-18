@@ -4,10 +4,16 @@ from .timestamp import TimeStamps
 from .soft_delete import SoftDeleteModel
 
 class Dossier(SoftDeleteModel,TimeStamps,models.Model):
+    class NiveauPriorite(models.TextChoices):
+        normale = "NORMALE"
+        urgente = "URGENTE"
+        tres_urgente = "TRES_URGENTE"
     reference = models.CharField(max_length=50, unique=True)
     objet = models.TextField(blank=True,null=True)
     fichier = models.FileField(upload_to='pieces_jointes/', max_length=100,null=True,blank=True)
+    niveau_priorite = models.CharField(max_length=50, choices=NiveauPriorite, default=NiveauPriorite.normale)
     date_creation = models.DateTimeField(auto_now_add=True)
+    date_fin = models.DateField(null=True,blank=True)
 
 ######################################################################################
 

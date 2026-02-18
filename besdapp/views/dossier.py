@@ -97,6 +97,21 @@ class DossierViewSet(viewsets.ModelViewSet):
     def total_dossiers(self,request):
         total = Dossier.objects.count()
         return Response({'total_dossiers': total })
+
+    @action(detail=False, methods=['get'])
+    def classification_niveau_priorite(self,request):
+        # count pour chaque niveau de priorite  si il n ya pas des dossiers avec un niveau de priorite specifique on affiche 0 a condition que tous les niveau soit afficher la class pour tous les niveau est 
+        # class NiveauPriorite(models.TextChoices):
+        #   normale = "NORMALE"
+        #    urgente = "URGENTE"
+        #    tres_urgente = "TRES_URGENTE"
+        qs=self.get_queryset()
+        stats=qs.values('niveau_priorite').annotate(total=Count('id'))
+        return Response({
+            "total_dossiers": qs.count(),
+            "resultats": stats
+        })
+        
     
     
 # 
