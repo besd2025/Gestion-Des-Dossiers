@@ -14,7 +14,6 @@ class CelluleSerializer(serializers.ModelSerializer):
     tot_archive=serializers.IntegerField(read_only=True)
     class Meta:
         model = Cellule
-
         fields = ['id', 'nom_cellule', 'code_cellule', 'bureau',
                   'tot_doss_cel','tot_return','tot_assign','tot_send',
                   'tot_recu','tot_en_cours','tot_valide','tot_rejete',

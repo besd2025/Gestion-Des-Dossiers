@@ -14,11 +14,12 @@ from besdapp.models import Roles
 class CustomUserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(read_only = True)
     bureau_cellule = serializers.CharField(read_only = True)
+    bureau_name= serializers.CharField(read_only=True)
 
     class Meta:
         model = CustomUser
         fields = [
-            'id', 'nom', 'prenom', 'email','role','bureau_cellule'
+            'id', 'nom', 'prenom', 'email','role','bureau_cellule','bureau_name','is_actif'
         ]
 
 # --- 2. SÉRIALISEUR D'INSCRIPTION (Création) ---

@@ -60,6 +60,13 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='user-cellule')
     def user_cellule(self, request):
         """Retourne la liste simplifiée : id, nom, prenom, bureau, cellule, role"""
-        queryset = CustomUser.objects.filter(user_role__isnull=False,user_role__role_cellule__isnull=False).annotate(role= F('user_role__nom_role'), bureau_cellule=F('user_role__role_cellule__cellule__nom_cellule'))
+        queryset = CustomUser.objects.filter(user_role__isnull=False,user_role__role_cellule__isnull=False).annotate(role= F('user_role__nom_role'), bureau_cellule=F('user_role__role_cellule__cellule__nom_cellule'),bureau_name=F('user_role__role_cellule__cellule__bureau__nom_bureau'))
+        page=self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = CustomUserSerializer(queryset, many=True)
         return Response(serializer.data)
+    
+    
+    
