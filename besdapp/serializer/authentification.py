@@ -7,6 +7,7 @@ from besdapp.models.cellule import Cellule
 from django.db import transaction
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.exceptions import ObjectDoesNotExist
+from besdapp.models import Roles
 
 
 # --- 1. SÉRIALISEUR DE CONSULTATION (Affichage) ---
@@ -93,9 +94,16 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Ajout des informations personnalisées dans le payload du JWT
         token['nom'] = user.nom
         token['prenom'] = user.prenom
+        token['email'] =user.email
+    
+        
         try:
             role_rel = user.user_role   # NO .first()
-            token['role'] = role_rel.role.name
+            token["type_service"] = "Bureau" if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU] else "Secretariat" if  role_rel.nom_role == Roles.SECRETARIAT else "Cellule"
+            token['role'] = role_rel.nom_role
+            token["bureau"] =role_rel.role_bureau.bureau.nom_bureau if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT] else role_rel.role_cellule.cellule.bureau.nom_bureau
+            if role_rel.nom_role not in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT]:
+                token['cellule'] = role_rel.role_cellule.cellule.nom_cellule
         except ObjectDoesNotExist:
             token['role'] = None
 
