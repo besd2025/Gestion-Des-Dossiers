@@ -25,11 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('besdapp.urls')),
     path('api/login/', LoginView.as_view(), name='token_obtain_pair'),
-    
-    # Route pour rafraîchir le token
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # Ajoutez cette ligne pour activer le bouton "Login" de DRF
-    # path('api-auth/', include('rest_framework.urls')),
 
-    # ... vos routes
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
