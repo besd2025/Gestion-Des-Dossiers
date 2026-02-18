@@ -9,17 +9,18 @@ class DossierFilter(django_filters.FilterSet):
     )
 
     # Filtrer par date supérieure ou égale
-    date_creation_after = django_filters.DateFilter(
+    
+    django_filters.DateFilter(
         field_name="date_creation",
-        lookup_expr="date__gte"  # comparer uniquement la date
+        lookup_expr="date__gte" 
     )
 
     # Filtrer par date inférieure ou égale
     date_creation_before = django_filters.DateFilter(
         field_name="date_creation",
-        lookup_expr="date__lte"  # comparer uniquement la date
+        lookup_expr="date__lte" 
     )
 
     class Meta:
         model = Dossier
-        fields = ['date_creation', 'date_creation_after', 'date_creation_before']
+        fields = ['date_creation']
