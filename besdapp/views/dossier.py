@@ -109,7 +109,56 @@ class DossierViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='total-count')
     def total_dossiers(self,request):
         total = Dossier.objects.count()
-        return Response({'total_dossiers': total })
+        tatal_assgin = EtatAvancement.objects.filter(is_active=True).count()
+        total_par_etat = EtatAvancement.objects.filter(is_active=True).aggregate(
+            total_assign = Count(
+                "dossier",
+                filter=Q(status="ASSIGN"),
+                distinct=True
+            ),
+            total_send = Count(
+                "dossier",
+                filter=Q(status="SEND"),
+                distinct=True
+            ),
+            total_recu = Count(
+                "dossier",
+                filter=Q(status="RECU"),
+                distinct=True
+            ),
+            total_in_processing = Count(
+                "dossier",
+                filter=Q(status="IN PROCESSING"),
+                distinct=True
+            ),
+            total_validated = Count(
+                "dossier",
+                filter=Q(status="VALIDATED"),
+                distinct=True
+            ),
+            total_reject = Count(
+                "dossier",
+                filter=Q(status="REJECT"),
+                distinct=True
+            ),
+            total_in_validation = Count(
+                "dossier",
+                filter=Q(status="IN_VALIDATION"),
+                distinct=True
+            ),
+            total_archived = Count(
+                "dossier",
+                filter=Q(status="ARCHIVED"),
+                distinct=True
+            ),
+            total_return = Count(
+                "dossier",
+                filter=Q(status="RETURN"),
+                distinct=True
+            ),
+        )
+        dossier_non_assigne = total- tatal_assgin
+        return Response({'total_dossiers': total,'total_par_etat': total_par_etat,'dossier_non_assigne': dossier_non_assigne })
 
     @action(detail=False, methods=['get'])
     def classification_niveau_priorite(self,request):
