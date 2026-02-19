@@ -11,7 +11,7 @@ from datetime import timedelta
 from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-from django.db.models import Count
+from django.db.models import Count,F
 from django.db.models.functions import TruncDay, TruncWeek, TruncYear,TruncMonth
 from django.utils.dateparse import parse_date # Pour valider les dates
 from rest_framework.exceptions import ValidationError
@@ -47,42 +47,7 @@ class DossierViewSet(viewsets.ModelViewSet):
     #     elif role=='CONSEILLER':
     #         return Dossier.objects.filter(assigne_a=user)
     #     return Dossier.objects.none()
-    
-    @action(detail=False,methods=['get'])
-    def statistiques(self, request):
-        qs=self.get_queryset()
 
-        period = request.query_params.get('period')
-        now = timezone.now()
-
-        if period == 'jour':
-            qs = qs.filter(date_creation__date=now.date())
-        elif period == 'semaine':
-            # 7 derniers jours
-            start_date = now - timedelta(days=7)
-            qs = qs.filter(date_creation__gte=start_date)
-        elif period == 'mois':
-            # Dossiers du mois en cours
-            qs = qs.filter(date_creation__year=now.year, date_creation__month=now.month)
-        elif period == 'annee':
-            # Dossiers de l'année en cours
-            qs = qs.filter(date_creation__year=now.year)
-
-        # stats_jour=qs.annotate(date=TruncDay('date_creation'))\
-        #              .values('date').order_by('-date').annotate(total=Count('id'))
-        # stats_semaine=qs.annotate(date=TruncWeek('date_creation'))\
-        #              .values('date').order_by('-date').annotate(total=Count('id'))
-        # stats_mois=qs.annotate(date=TruncMonth('date_creation'))\
-        #              .values('date').order_by('-date').annotate(total=Count('id'))
-        # stats_annee=qs.annotate(date=TruncYear('date_creation'))\
-        #              .values('date').order_by('-date').annotate(total=Count('id'))
-        stats = qs.annotate(date=TruncDay('date_creation'))\
-                  .values('date').order_by('-date').annotate(total=Count('id'))
-        return Response({
-            "periode_choisie": period if period else "Toutes",
-            "total_dossiers": qs.count(),
-            "resultats": stats
-        })
 
 
     # def get_queryset(self):
@@ -105,6 +70,84 @@ class DossierViewSet(viewsets.ModelViewSet):
         etats = dossier.etats.all().order_by("created_at")
         serializer = EtatSerializer(etats, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="statistiques")
+    def statistiques(self, request):
+        periode = request.query_params.get("periode")
+        now = timezone.now()
+
+        # -------------------------
+        # CONFIGURATION
+        # -------------------------
+
+        if periode == "jour":
+            trunc = TruncDay
+            periods = [
+                (now - timedelta(days=i)).date()
+                for i in range(6, -1, -1)
+            ]
+
+        elif periode == "semaine":
+            trunc = TruncWeek
+            periods = []
+            for i in range(6, -1, -1):
+                date = now - timedelta(weeks=i)
+                monday = (date - timedelta(days=date.weekday())).date()
+                periods.append(monday)
+
+        elif periode == "mois":
+            trunc = TruncMonth
+            periods = []
+            for i in range(6, -1, -1):
+                year = now.year
+                month = now.month - i
+                while month <= 0:
+                    month += 12
+                    year -= 1
+                periods.append(timezone.datetime(year, month, 1).date())
+
+        elif periode == "annee":
+            trunc = TruncYear
+            periods = [
+                timezone.datetime(now.year - i, 1, 1).date()
+                for i in range(6, -1, -1)
+            ]
+
+        else:
+            return Response({"error": "Période invalide"}, status=400)
+
+        date_from = periods[0]
+
+        # -------------------------
+        # QUERY
+        # -------------------------
+
+        queryset = (
+            Dossier.objects
+            .filter(date_creation__date__gte=date_from)
+            .annotate(period=trunc("date_creation"))
+            .values("period")
+            .annotate(count=Count("id"))
+        )
+
+        db_data = {
+            item["period"].date(): item["count"]
+            for item in queryset
+        }
+
+        # -------------------------
+        # ZERO FILL
+        # -------------------------
+
+        result = []
+
+        for period in periods:
+            result.append({
+                "period": period,
+                "count": db_data.get(period, 0)
+            })
+
+        return Response(result)
     
     @action(detail=False, methods=['get'], url_path='total-count')
     def total_dossiers(self,request):
@@ -173,28 +216,6 @@ class DossierViewSet(viewsets.ModelViewSet):
             "total_dossiers": qs.count(),
             "resultats": stats
         })
-    
-    @action(detail=False, methods=["get"])
-    def stats(self, request):
-        stats = EtatAvancement.objects.filter(is_active=True).aggregate(
-            total_traite=Count(
-                "dossier",
-                filter=Q(status="VALIDATED"),
-                distinct=True
-            ),
-            total_archive=Count(
-                "dossier",
-                filter=Q(status="ARCHIVED"),
-                distinct=True
-            ),
-            total_rejete=Count(
-                "dossier",
-                filter=Q(status="REJECT"),
-                distinct=True
-            ),
-        )
-
-        return Response(stats)
     
     
     @action(detail=False, methods=['get'])
