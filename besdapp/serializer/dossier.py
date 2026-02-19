@@ -6,11 +6,9 @@ from rest_framework import serializers
 class DossierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dossier
-        fields =['reference', 'objet', 'fichier','date_creation']
+        fields =['reference', 'objet', 'fichier','date_creation','niveau_priorite','date_fin']
         read_only_fields = ['date_creation'] # Dis à DRF de ne pas l'attendre dans le POST
         
-        total_par_etat = serializers.IntegerField(read_only=True)
-
 
 # class EtatSerializer(serializers.ModelSerializer):
 #     class Meta:
