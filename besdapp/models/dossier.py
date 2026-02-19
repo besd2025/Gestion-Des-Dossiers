@@ -22,8 +22,6 @@ class EtatAvancement(SoftDeleteModel,TimeStamps,models.Model):
     class Status(models.TextChoices):
         return_dossier = "RETURN"
         assign = "ASSIGN"
-        send = "SEND"
-        recu='RECU'
         in_processing = 'IN PROCESSING'
         processed = 'PROCESSED'
         validated = "VALIDATED"
@@ -44,5 +42,5 @@ class EtatAvancement(SoftDeleteModel,TimeStamps,models.Model):
     )
     comment=models.TextField()
     is_active = models.BooleanField(default=False)
-    status = models.CharField(max_length=30, choices=Status, default=Status.send)
+    status = models.CharField(max_length=30, choices=Status, default=Status.assign)
 

@@ -44,15 +44,19 @@ class BureauViewSet(viewsets.ModelViewSet):
         serializer= CustomUserSerializer(Alluserburole, many=True)
         return Response(serializer.data)
 
+    
     @action(detail=True, methods=['get'])
     def statistiques_dossiers(self, request, pk=None):
         bureau = self.get_object()
 
-        # On récupère uniquement les états actifs liés aux cellules du bureau
         stats_queryset = (
             EtatAvancement.objects
             .filter(
                 is_active=True,
+                status__in=[
+                    EtatAvancement.Status.in_processing,
+                    EtatAvancement.Status.processed
+                ],
                 user_actual__isnull=False,
                 user_actual__user_role__role_cellule__cellule__bureau_id=bureau.id
             )
@@ -64,7 +68,6 @@ class BureauViewSet(viewsets.ModelViewSet):
             .annotate(total=Count('dossier', distinct=True))
         )
 
-        # Structuration des données
         statistiques = {}
 
         for item in stats_queryset:
@@ -76,14 +79,13 @@ class BureauViewSet(viewsets.ModelViewSet):
                     "cellule_id": cellule_id,
                     "nom_cellule": nom_cellule,
                     "total_dossiers": 0,
-                    "par_status": []
+                    "par_status": {
+                        "IN PROCESSING": 0,
+                        "PROCESSED": 0
+                    }
                 }
 
-            statistiques[cellule_id]["par_status"].append({
-                "status": item["status"],
-                "total": item["total"]
-            })
-
+            statistiques[cellule_id]["par_status"][item["status"]] = item["total"]
             statistiques[cellule_id]["total_dossiers"] += item["total"]
 
         return Response({
