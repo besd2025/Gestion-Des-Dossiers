@@ -7,7 +7,7 @@ class Dossier(SoftDeleteModel,TimeStamps,models.Model):
     class NiveauPriorite(models.TextChoices):
         normale = "NORMALE"
         urgente = "URGENTE"
-        tres_urgente = "TRES_URGENTE"
+        confidentiel = "CONFIDENTIEL"
     reference = models.CharField(max_length=50, unique=True)
     objet = models.TextField(blank=True,null=True)
     fichier = models.FileField(upload_to='pieces_jointes/', max_length=100,null=True,blank=True)
@@ -25,6 +25,7 @@ class EtatAvancement(SoftDeleteModel,TimeStamps,models.Model):
         send = "SEND"
         recu='RECU'
         in_processing = 'IN PROCESSING'
+        processed = 'PROCESSED'
         validated = "VALIDATED"
         REJECT = "REJECT"
         IN_VALIDATION = "IN_VALIDATION"

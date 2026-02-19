@@ -174,6 +174,11 @@ class DossierViewSet(viewsets.ModelViewSet):
                 filter=Q(status="IN PROCESSING"),
                 distinct=True
             ),
+            total_processed = Count(
+                "dossier",
+                filter=Q(status="PROCESSED"),
+                distinct=True
+            ),
             total_validated = Count(
                 "dossier",
                 filter=Q(status="VALIDATED"),
