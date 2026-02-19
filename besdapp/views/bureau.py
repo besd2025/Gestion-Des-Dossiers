@@ -80,7 +80,7 @@ class BureauViewSet(viewsets.ModelViewSet):
                     "nom_cellule": nom_cellule,
                     "total_dossiers": 0,
                     "par_status": {
-                        "IN PROCESSING": 0,
+                        "IN_PROCESSING": 0,
                         "PROCESSED": 0
                     }
                 }

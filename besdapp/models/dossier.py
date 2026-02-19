@@ -22,7 +22,7 @@ class EtatAvancement(SoftDeleteModel,TimeStamps,models.Model):
     class Status(models.TextChoices):
         return_dossier = "RETURN"
         assign = "ASSIGN"
-        in_processing = 'IN PROCESSING'
+        in_processing = 'IN_PROCESSING'
         processed = 'PROCESSED'
         validated = "VALIDATED"
         REJECT = "REJECT"
