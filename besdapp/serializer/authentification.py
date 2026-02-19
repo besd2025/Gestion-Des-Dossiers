@@ -77,7 +77,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             #Role
             role = Roles.objects.create(user = user, nom_role=role_data )
             role.save()
-            if type_service == "BUREAU":
+            if type_service == "Bureau" or type_service == "Secretariat":
                 bureau = Bureau.objects.filter(code_bureau =bureau_cellule ).first()
                 role = RoleBureau.objects.create(role=role, bureau = bureau)
                 return user
