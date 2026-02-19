@@ -103,8 +103,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             token["type_service"] = "Bureau" if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU] else "Secretariat" if  role_rel.nom_role == Roles.SECRETARIAT else "Cellule"
             token['role'] = role_rel.nom_role
             token["bureau"] =role_rel.role_bureau.bureau.nom_bureau if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT] else role_rel.role_cellule.cellule.bureau.nom_bureau
+            token["bureau_id"] =role_rel.role_bureau.bureau.id if role_rel.nom_role in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT] else role_rel.role_cellule.cellule.bureau.id
             if role_rel.nom_role not in [Roles.CHEF_ADJOINT_BUREAU, Roles.CHEF_BUREAU,Roles.SECRETARIAT]:
                 token['cellule'] = role_rel.role_cellule.cellule.nom_cellule
+                token['cellule_id'] = role_rel.role_cellule.cellule.id
         except ObjectDoesNotExist:
             token['role'] = None
 
