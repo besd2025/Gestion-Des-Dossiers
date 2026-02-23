@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from besdapp.models.document import Document
+from .etatavancement import EtatSerializer
 
 class DocumentSerializer(serializers.ModelSerializer):
     # Affiche la référence du dossier au lieu de son ID simple (lecture seule)
-    dossier_ref = serializers.ReadOnlyField(source='dossier.reference')
+    state = EtatSerializer(read_only=True)
 
     class Meta:
         model = Document
-        fields = ['id', 'dossier', 'dossier_ref', 'fichier']
+        fields = ['id', 'state', 'fichier','created_at','updated_at']

@@ -13,6 +13,7 @@ class Dossier(SoftDeleteModel,TimeStamps,models.Model):
     fichier = models.FileField(upload_to='pieces_jointes/', max_length=100,null=True,blank=True)
     annexe = models.FileField(upload_to='pieces_jointes/', max_length=100,null=True,blank=True)
     niveau_priorite = models.CharField(max_length=50, choices=NiveauPriorite, default=NiveauPriorite.normale)
+    description = models.TextField(blank=True,null=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_fin = models.DateField(null=True,blank=True)
 
