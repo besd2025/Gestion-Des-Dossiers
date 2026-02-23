@@ -29,22 +29,22 @@ class DossierViewSet(viewsets.ModelViewSet):
     filterset_class = DossierFilter
 
     def get_queryset(self):
-        users_queryset = CustomUser.objects.filter(
-            user_role__isnull=False
+
+        etat_queryset = EtatAvancement.objects.filter(
+            is_active=True
+        ).select_related(
+            'user_actual',
+            'user_actual__user_role',
+            'user_actual__user_role__role_bureau__bureau'
         ).annotate(
-            role=F('user_role__nom_role'),
-            bureau_cellule=F('user_role__role_bureau__bureau__nom_bureau')
+            role=F('user_actual__user_role__nom_role'),
+            bureau_cellule=F('user_actual__user_role__role_cellule__cellule__nom_cellule'),
+            bureau_name=F('user_actual__user_role__role_cellule__cellule__bureau__nom_bureau'),
         )
 
         return Dossier.objects.prefetch_related(
-            Prefetch(
-                "dossier",
-                queryset=EtatAvancement.objects.filter(is_active=True).select_related("user_actual").prefetch_related(
-                    Prefetch("user_actual", queryset=users_queryset)
-                )
-            )
+            Prefetch('dossier', queryset=etat_queryset)
         )
-    
         
 
 
