@@ -17,16 +17,27 @@ from django.utils.dateparse import parse_date # Pour valider les dates
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Prefetch
 
 class DossierViewSet(viewsets.ModelViewSet):
     """
     ViewSet pour gérer les dossiers avec filtrage automatique.
     """
-    queryset = Dossier.objects.all()
     serializer_class = DossierSerializer
     #permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = DossierFilter
+
+    def get_queryset(self):
+        return (
+            Dossier.objects.filter(is_deleted=False)
+            .prefetch_related(
+                Prefetch(
+                    "dossier",  # related_name dans EtatAvancement
+                    queryset=EtatAvancement.objects.filter(is_active=True).select_related("user_actual")
+                )
+            )
+        )
     
         
 
