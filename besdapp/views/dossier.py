@@ -84,13 +84,13 @@ class DossierViewSet(viewsets.ModelViewSet):
             trunc = TruncDay
             periods = [
                 (now - timedelta(days=i)).date()
-                for i in range(6, -1, -1)
+                for i in range(11, -1, -1)
             ]
 
         elif periode == "semaine":
             trunc = TruncWeek
             periods = []
-            for i in range(6, -1, -1):
+            for i in range(11, -1, -1):
                 date = now - timedelta(weeks=i)
                 monday = (date - timedelta(days=date.weekday())).date()
                 periods.append(monday)
@@ -98,7 +98,7 @@ class DossierViewSet(viewsets.ModelViewSet):
         elif periode == "mois":
             trunc = TruncMonth
             periods = []
-            for i in range(6, -1, -1):
+            for i in range(11, -1, -1):
                 year = now.year
                 month = now.month - i
                 while month <= 0:
@@ -110,7 +110,7 @@ class DossierViewSet(viewsets.ModelViewSet):
             trunc = TruncYear
             periods = [
                 timezone.datetime(now.year - i, 1, 1).date()
-                for i in range(6, -1, -1)
+                for i in range(11, -1, -1)
             ]
 
         else:
@@ -159,19 +159,11 @@ class DossierViewSet(viewsets.ModelViewSet):
                 filter=Q(status="ASSIGN"),
                 distinct=True
             ),
-            total_send = Count(
-                "dossier",
-                filter=Q(status="SEND"),
-                distinct=True
-            ),
-            total_recu = Count(
-                "dossier",
-                filter=Q(status="RECU"),
-                distinct=True
-            ),
+
+
             total_in_processing = Count(
                 "dossier",
-                filter=Q(status="IN PROCESSING"),
+                filter=Q(status="IN_PROCESSING"),
                 distinct=True
             ),
             total_processed = Count(
@@ -228,6 +220,87 @@ class DossierViewSet(viewsets.ModelViewSet):
         dossiers = Dossier.objects.filter(is_deleted=False).order_by('-date_creation')[:5]
         serializer = self.get_serializer(dossiers, many=True)
         return Response(serializer.data)
+
+
+    
+
+    @action(detail=False, methods=["get"], url_path="statistiques_dossier_traite")
+    def statistiques_dossier_traite(self, request):
+        periode = request.query_params.get("periode")
+        now = timezone.now()
+
+        # -------------------------
+        # CONFIGURATION
+        # -------------------------
+
+        if periode == "jour":
+            trunc = TruncDay
+            periods = [
+                (now - timedelta(days=i)).date()
+                for i in range(11, -1, -1)
+            ]
+
+        elif periode == "semaine":
+            trunc = TruncWeek
+            periods = []
+            for i in range(11, -1, -1):
+                date = now - timedelta(weeks=i)
+                monday = (date - timedelta(days=date.weekday())).date()
+                periods.append(monday)
+
+        elif periode == "mois":
+            trunc = TruncMonth
+            periods = []
+            for i in range(11, -1, -1):
+                year = now.year
+                month = now.month - i
+                while month <= 0:
+                    month += 12
+                    year -= 1
+                periods.append(timezone.datetime(year, month, 1).date())
+
+        elif periode == "annee":
+            trunc = TruncYear
+            periods = [
+                timezone.datetime(now.year - i, 1, 1).date()
+                for i in range(11, -1, -1)
+            ]
+
+        else:
+            return Response({"error": "Période invalide"}, status=400)
+
+        date_from = periods[0]
+
+        # -------------------------
+        # QUERY
+        # -------------------------
+
+        queryset = (
+            EtatAvancement.objects
+            .filter(is_active=True, status=EtatAvancement.Status.processed,created_at__date__gte=date_from)
+            .annotate(period=trunc("created_at"))
+            .values("period")
+            .annotate(count=Count("id"))
+        )
+
+        db_data = {
+            item["period"].date(): item["count"]
+            for item in queryset
+        }
+
+        # -------------------------
+        # ZERO FILL
+        # -------------------------
+
+        result = []
+
+        for period in periods:
+            result.append({
+                "period": period,
+                "count": db_data.get(period, 0)
+            })
+
+        return Response(result)
     
      
   
