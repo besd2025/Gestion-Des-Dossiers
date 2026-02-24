@@ -2,6 +2,7 @@
 from besdapp.models.dossier import Dossier 
 from rest_framework import serializers
 from .authentification import CustomUserSerializer
+from .etatavancement import EtatSerializer
 
 
 class DossierSerializer(serializers.ModelSerializer):
@@ -58,11 +59,15 @@ class DossierSerializer(serializers.ModelSerializer):
         return bool(etat_actif and etat_actif.user_actual)
         
     def get_status(self, obj):
-        status = next(
+        etat_actif = next(
             (etat for etat in obj.dossier.all() if etat.is_active),
             None
         )
-        return status if status else None
+
+        if not etat_actif:
+            return None
+
+        return EtatSerializer(etat_actif).data
 # class EtatSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model= EtatAvancement
