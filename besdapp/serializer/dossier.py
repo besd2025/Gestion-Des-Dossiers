@@ -6,10 +6,13 @@ from .authentification import CustomUserSerializer
 
 class DossierSerializer(serializers.ModelSerializer):
     utilisateur = serializers.SerializerMethodField()
+    is_assign = serializers.SerializerMethodField() 
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Dossier
         fields = [
+            'id',
             'reference',
             'objet',
             'fichier',
@@ -18,7 +21,9 @@ class DossierSerializer(serializers.ModelSerializer):
             'niveau_priorite',
             'date_fin',
             'description',
-            'utilisateur'
+            'utilisateur',
+            'is_assign',
+            'status'
         ]
         read_only_fields = ['date_creation']
 
@@ -44,6 +49,20 @@ class DossierSerializer(serializers.ModelSerializer):
             "bureau_cellule": getattr(etat_actif, "bureau_cellule", None),
             "bureau_name": getattr(etat_actif, "bureau_name", None),
         }
+
+    def get_is_assign(self, obj):
+        etat_actif = next(
+            (etat for etat in obj.dossier.all() if etat.is_active),
+            None
+        )
+        return bool(etat_actif and etat_actif.user_actual)
+        
+    def get_status(self, obj):
+        status = next(
+            (etat for etat in obj.dossier.all() if etat.is_active),
+            None
+        )
+        return status if status else None
 # class EtatSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model= EtatAvancement
