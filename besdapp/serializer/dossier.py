@@ -3,6 +3,52 @@ from besdapp.models.dossier import Dossier
 from rest_framework import serializers
 from .authentification import CustomUserSerializer
 from .etatavancement import EtatSerializer
+# serializers/activity.py
+
+from rest_framework import serializers
+from besdapp.models import EtatAvancement
+
+
+class DossierActivitySerializer(serializers.ModelSerializer):
+    action = serializers.SerializerMethodField()
+    user_full_name = serializers.SerializerMethodField()
+    role_name = serializers.SerializerMethodField()
+    date_action = serializers.SerializerMethodField()
+
+    class Meta:
+        model = EtatAvancement
+        fields = [
+            "action",
+            "user_full_name",
+            "role_name",
+            "date_action",
+        ]
+
+    def get_action(self, obj):
+        mapping = {
+            "ASSIGN": "Dossier transféré",
+            "IN_PROCESSING": "Dossier reçu",
+            "PROCESSED": "Dossier traité",
+            "VALIDATED": "Dossier validé",
+            "REJECT": "Dossier rejeté",
+            "RETURN": "Dossier retourné",
+            "IN_VALIDATION": "En validation",
+            "ARCHIVED": "Dossier archivé",
+        }
+        return mapping.get(obj.status, "Action inconnue")
+
+    def get_user_full_name(self, obj):
+        if obj.user_actual:
+            return f"{obj.user_actual.prenom} {obj.user_actual.nom}"
+        return "Utilisateur inconnu"
+
+    def get_role_name(self, obj):
+        if obj.user_actual and hasattr(obj.user_actual, "user_role"):
+            return obj.user_actual.user_role.get_nom_role_display()
+        return None
+
+    def get_date_action(self, obj):
+        return obj.created_at.strftime("Le %d/%m/%Y à %H:%M")
 
 
 class DossierSerializer(serializers.ModelSerializer):

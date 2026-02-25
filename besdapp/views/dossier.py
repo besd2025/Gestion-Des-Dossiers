@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from besdapp.models.dossier import Dossier,EtatAvancement 
 from besdapp.serializer import EtatSerializer
-from besdapp.serializer import DossierSerializer
+from besdapp.serializer import DossierSerializer,DossierActivitySerializer
 from besdapp.filters import DossierFilter
 from django.utils import timezone
 from datetime import timedelta
@@ -19,6 +19,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Prefetch
 from besdapp.models.authentification import CustomUser
+from besdapp.models import EtatAvancement
+from besdapp.
 class DossierViewSet(viewsets.ModelViewSet):
     """
     ViewSet pour gérer les dossiers avec filtrage automatique.
@@ -80,6 +82,20 @@ class DossierViewSet(viewsets.ModelViewSet):
         
     #     # 2. Les autres ne voient que ce qui leur est assigné
     #     return Dossier.objects.
+    
+    @action(detail=True, methods=["get"], url_path="activite-recente")
+    def activite_recente(self, request, pk=None):
+        dossier = self.get_object()
+
+        activites = EtatAvancement.objects.filter(
+            dossier=dossier
+        ).select_related(
+            "user_actual",
+            "user_actual__user_role"
+        ).order_by("-created_at")
+
+        serializer = DossierActivitySerializer(activites, many=True)
+        return Response(serializer.data)
     
     @action(detail=True, methods=["get"])
     def etapes(self, request, pk=None):
