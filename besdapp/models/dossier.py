@@ -16,6 +16,8 @@ class Dossier(SoftDeleteModel,TimeStamps,models.Model):
     description = models.TextField(blank=True,null=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_fin = models.DateField(null=True,blank=True)
+    is_seen = models.BooleanField(default=False)
+    is_seen_at = models.DateTimeField(null=True,blank=True)
 
 ######################################################################################
 
