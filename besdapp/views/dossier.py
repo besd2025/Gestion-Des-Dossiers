@@ -318,6 +318,33 @@ class DossierViewSet(viewsets.ModelViewSet):
             })
 
         return Response(result)
+
+
+    @action(detail=False, methods=["get"], url_path="stats")
+    def count_dossiers(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        total = queryset.count()
+
+        assigne = queryset.filter(
+            dossier__is_active=True,
+            dossier__user_actual__isnull=False
+        ).distinct().count()
+
+        non_assigne = queryset.filter(
+            dossier__isnull=True,
+        ).distinct().count()
+
+        nouveau = queryset.exclude(
+            dossier__is_active=True
+        ).distinct().count()
+
+        return Response({
+            "total_dossiers": total,
+            "dossiers_assignes": assigne,
+            "dossiers_non_assignes": non_assigne,
+            "dossiers_nouveaux": nouveau,
+        })
     
      
   
