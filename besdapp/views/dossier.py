@@ -20,7 +20,7 @@ from datetime import timedelta
 from django.db.models import Prefetch
 from besdapp.models.authentification import CustomUser
 from besdapp.models import EtatAvancement
-from besdapp.
+
 class DossierViewSet(viewsets.ModelViewSet):
     """
     ViewSet pour gérer les dossiers avec filtrage automatique.
