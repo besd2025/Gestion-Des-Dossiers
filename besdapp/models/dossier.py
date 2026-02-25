@@ -44,4 +44,6 @@ class EtatAvancement(SoftDeleteModel,TimeStamps,models.Model):
     comment=models.TextField()
     is_active = models.BooleanField(default=False)
     status = models.CharField(max_length=30, choices=Status, default=Status.assign)
+    is_seen = models.BooleanField(default=False)
+    is_seen_at = models.DateTimeField(null=True,blank=True)
 

@@ -87,7 +87,8 @@ class DossierFilter(django_filters.FilterSet):
 
     def filter_nouveau(self, queryset, name, value):
         if value:
-            return queryset.exclude(
-                dossier__is_active=True
+            return queryset.filter(
+                dossier__is_active=True,
+                dossier__is_seen=False
             ).distinct()
         return queryset

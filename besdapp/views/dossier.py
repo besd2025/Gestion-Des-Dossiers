@@ -335,8 +335,9 @@ class DossierViewSet(viewsets.ModelViewSet):
             dossier__isnull=True,
         ).distinct().count()
 
-        nouveau = queryset.exclude(
-            dossier__is_active=True
+        nouveau = queryset.filter(
+            dossier__is_active=True,
+            dossier__is_seen=False
         ).distinct().count()
 
         return Response({
