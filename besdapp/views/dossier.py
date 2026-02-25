@@ -320,7 +320,7 @@ class DossierViewSet(viewsets.ModelViewSet):
         return Response(result)
 
 
-    @action(detail=False, methods=["get"], url_path="stats")
+    @action(detail=False, methods=["get"], url_path="count_dossiers")
     def count_dossiers(self, request):
         queryset = self.filter_queryset(self.get_queryset())
 
