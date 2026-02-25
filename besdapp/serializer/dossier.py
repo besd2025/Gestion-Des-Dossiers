@@ -8,6 +8,34 @@ from .etatavancement import EtatSerializer
 from rest_framework import serializers
 from besdapp.models import EtatAvancement
 
+class ObservationSerializer(serializers.ModelSerializer):
+    role_name = serializers.SerializerMethodField()
+    user_full_name = serializers.SerializerMethodField()
+    date_action = serializers.SerializerMethodField()
+    observation = serializers.CharField(source="comment")
+
+    class Meta:
+        model = EtatAvancement
+        fields = [
+            "role_name",
+            "user_full_name",
+            "date_action",
+            "observation",
+        ]
+
+    def get_user_full_name(self, obj):
+        if obj.user_actual:
+            return f"{obj.user_actual.prenom} {obj.user_actual.nom}"
+        return "Utilisateur inconnu"
+
+    def get_role_name(self, obj):
+        if obj.user_actual and hasattr(obj.user_actual, "user_role"):
+            return obj.user_actual.user_role.get_nom_role_display()
+        return None
+
+    def get_date_action(self, obj):
+        return obj.created_at.strftime("%d/%m/%Y à %H:%M")
+
 
 class DossierActivitySerializer(serializers.ModelSerializer):
     action = serializers.SerializerMethodField()

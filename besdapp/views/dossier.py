@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from besdapp.models.dossier import Dossier,EtatAvancement 
 from besdapp.serializer import EtatSerializer
-from besdapp.serializer import DossierSerializer,DossierActivitySerializer
+from besdapp.serializer import DossierSerializer,DossierActivitySerializer,ObservationSerializer
 from besdapp.filters import DossierFilter
 from django.utils import timezone
 from datetime import timedelta
@@ -82,6 +82,37 @@ class DossierViewSet(viewsets.ModelViewSet):
         
     #     # 2. Les autres ne voient que ce qui leur est assigné
     #     return Dossier.objects.
+    
+    
+    @action(detail=True, methods=["get"], url_path="observations")
+    def observations(self, request, pk=None):
+        dossier = self.get_object()
+
+        # 1️⃣ Récupérer description du dossier (si existe)
+        observations_data = []
+
+        if dossier.description:
+            observations_data.append({
+                "role_name": "Secrétariat",
+                "user_full_name": None,
+                "date_action": dossier.created_at.strftime("%d/%m/%Y à %H:%M"),
+                "observation": dossier.description
+            })
+
+        # 2️⃣ Récupérer tous les commentaires EtatAvancement
+        etats = dossier.dossier.select_related(
+            "user_actual",
+            "user_actual__user_role"
+        ).order_by("created_at")
+
+        serializer = ObservationSerializer(etats, many=True)
+
+        observations_data.extend(serializer.data)
+
+        return Response({
+            "titre": "Observations",
+            "data": observations_data
+        })
     
     @action(detail=True, methods=["get"], url_path="activite-recente")
     def activite_recente(self, request, pk=None):
