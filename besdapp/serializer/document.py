@@ -12,13 +12,21 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = ['id', 'state', 'fichier', 'created_at', 'updated_at']
         read_only_fields = ["id", "created_at", "updated_at"]
         
-    def validate_state(self, value):
-        request = self.context["request"]
+class DocumentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ["id", "fichier", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
-        # Vérifier que l'utilisateur est assigné à cet état
-        if value.user_actual != request.user:
+    def create(self, validated_data):
+        """
+        Création du document en utilisant le 'state' fourni depuis la vue.
+        """
+        state = self.context.get("state")
+        if not state:
             raise serializers.ValidationError(
-                "Vous n'êtes pas autorisé à ajouter un document pour cet état."
+                "Impossible de trouver l'état actif pour l'utilisateur."
             )
 
-        return value
+        document = Document.objects.create(state=state, **validated_data)
+        return document

@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from besdapp.models import Dossier,EtatAvancement, Roles
 from besdapp.serializer import EtatSerializer
-from besdapp.serializer import DossierSerializer,DossierActivitySerializer,ObservationSerializer
+from besdapp.serializer import DossierSerializer,DossierActivitySerializer,ObservationSerializer,DocumentCreateSerializer
 from besdapp.filters import DossierFilter
 from django.utils import timezone
 from datetime import timedelta
