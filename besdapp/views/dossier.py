@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from besdapp.models import Dossier,EtatAvancement, Roles
 from besdapp.serializer import EtatSerializer
-from besdapp.serializer import DossierSerializer,DossierActivitySerializer,ObservationSerializer,DocumentCreateSerializer
+from besdapp.serializer import DossierSerializer,DossierActivitySerializer,ObservationSerializer,DocumentCreateSerializer,DossierDocumentsSerializer
 from besdapp.filters import DossierFilter
 from django.utils import timezone
 from datetime import timedelta
@@ -133,6 +133,26 @@ class DossierViewSet(viewsets.ModelViewSet):
         
     #     # 2. Les autres ne voient que ce qui leur est assigné
     #     return Dossier.objects.
+
+    @action(detail=True, methods=["get"], url_path="documents")
+    def documents(self, request, pk=None):
+        """
+        Retourne tous les documents pour un dossier précis (detail=True),
+        incluant le fichier initial du dossier et les documents liés aux états.
+        """
+        try:
+            dossier = Dossier.objects.get(pk=pk)
+        except Dossier.DoesNotExist:
+            return Response(
+                {"detail": "Dossier non trouvé."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = DossierDocumentsSerializer(
+            dossier,
+            context={"request": request}
+        )
+        return Response(serializer.data)
     
     
     @action(detail=True, methods=["post"], url_path="add-document")
@@ -159,22 +179,20 @@ class DossierViewSet(viewsets.ModelViewSet):
 
         if not etat:
             return Response(
-                {
-                    "detail": "Aucun état actif trouvé pour ce dossier et cet utilisateur."
-                },
+                {"detail": "Aucun état actif trouvé pour ce dossier et cet utilisateur."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
         # 3️⃣ Serializer fichier
         serializer = DocumentCreateSerializer(
             data=request.data,
-            context={"request": request}
+            context={"request": request, "state": etat}  # 🔹 injecter l'état ici
         )
 
         serializer.is_valid(raise_exception=True)
 
-        # 4️⃣ Création du document avec état auto
-        document = serializer.save(state=etat)
+        # 4️⃣ Création du document avec état automatique
+        document = serializer.save()
 
         return Response(
             {
@@ -185,7 +203,6 @@ class DossierViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_201_CREATED
         )
-    
     
     @action(detail=True, methods=["get"], url_path="observations")
     def observations(self, request, pk=None):

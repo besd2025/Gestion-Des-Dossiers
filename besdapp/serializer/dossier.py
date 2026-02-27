@@ -1,12 +1,9 @@
 # Si ton fichier s'appelle Dossier.py et la classe dedans s'appelle Dossier :
-from besdapp.models.dossier import Dossier 
+from besdapp.models import Dossier, Document, EtatAvancement
 from rest_framework import serializers
 from .authentification import CustomUserSerializer
 from .etatavancement import EtatSerializer
-# serializers/activity.py
 
-from rest_framework import serializers
-from besdapp.models import EtatAvancement
 
 class ObservationSerializer(serializers.ModelSerializer):
     role_name = serializers.SerializerMethodField()
@@ -146,3 +143,46 @@ class DossierSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model= EtatAvancement
 #         fields=['Id_dossier', 'previous_state','Id_user_actual''commentaire']
+
+
+
+class DossierDocumentsSerializer(serializers.ModelSerializer):
+    documents = serializers.SerializerMethodField()
+    fichier_depart = serializers.FileField(source="fichier")  # fichier initial du dossier
+
+    class Meta:
+        model = Dossier
+        fields = [
+            "id",
+            "reference",
+            "objet",
+            "fichier_depart",
+            "documents",
+            "niveau_priorite",
+            "date_creation",
+            "date_fin",
+        ]
+
+    def get_documents(self, obj):
+        """
+        Récupère tous les documents liés à ce dossier via les états.
+        """
+        all_documents = []
+
+        # Tous les états liés au dossier
+        etats = EtatAvancement.objects.filter(dossier=obj)
+
+        for etat in etats:
+            # Tous les documents liés à cet état
+            docs = Document.objects.filter(state=etat)
+            for doc in docs:
+                all_documents.append({
+                    "id": doc.id,
+                    "fichier": doc.fichier.url if doc.fichier else None,
+                    "etat_id": etat.id,
+                    "etat_status": etat.status,
+                    "created_at": doc.created_at,
+                    "updated_at": doc.updated_at,
+                })
+
+        return all_documents
