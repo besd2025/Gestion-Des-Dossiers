@@ -47,9 +47,7 @@ class DossierViewSet(viewsets.ModelViewSet):
         # -----------------------------
         # 1️⃣ Base queryset EtatAvancement (TA LOGIQUE)
         # -----------------------------
-        etat_queryset = EtatAvancement.objects.filter(
-            is_active=True
-        ).select_related(
+        etat_queryset = EtatAvancement.objects.all().select_related(
             'user_actual',
             'user_actual__user_role',
             'user_actual__user_role__role_bureau__bureau',
