@@ -85,10 +85,9 @@ class DossierViewSet(viewsets.ModelViewSet):
 
         # ✅ CONSEILLER → dossiers assignés à lui
         elif role == Roles.CONSEILLER:
-            dossiers = Dossier.objects.filter(
-                #dossier__is_active=True,
-                dossier__user_actual=user
-            ).distinct()
+            print(role)
+            print(Roles.CONSEILLER)
+            dossiers = Dossier.objects.filter(dossier__user_actual=user).distinct()
 
         else:
             dossiers = Dossier.objects.none()
