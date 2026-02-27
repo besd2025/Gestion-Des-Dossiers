@@ -28,7 +28,7 @@ class DossierViewSet(viewsets.ModelViewSet):
     ViewSet pour gérer les dossiers avec filtrage automatique.
     """
     serializer_class = DossierSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = DossierFilter
 
