@@ -1,8 +1,8 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions,status
 from django.db.models import Count,Q
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from besdapp.models.dossier import Dossier,EtatAvancement 
+from besdapp.models import Dossier,EtatAvancement, Roles
 from besdapp.serializer import EtatSerializer
 from besdapp.serializer import DossierSerializer,DossierActivitySerializer,ObservationSerializer
 from besdapp.filters import DossierFilter
@@ -19,35 +19,89 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Prefetch
 from besdapp.models.authentification import CustomUser
-from besdapp.models import EtatAvancement
+from besdapp.models import EtatAvancement,Document
+from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 class DossierViewSet(viewsets.ModelViewSet):
     """
     ViewSet pour gérer les dossiers avec filtrage automatique.
     """
     serializer_class = DossierSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = DossierFilter
 
     def get_queryset(self):
+        user = self.request.user
 
+        if not user or user.is_anonymous:
+            return Dossier.objects.none()
+
+        try:
+            role_obj = user.user_role
+            role = role_obj.nom_role
+        except:
+            return Dossier.objects.none()
+
+        # -----------------------------
+        # 1️⃣ Base queryset EtatAvancement (TA LOGIQUE)
+        # -----------------------------
         etat_queryset = EtatAvancement.objects.filter(
             is_active=True
         ).select_related(
             'user_actual',
             'user_actual__user_role',
-            'user_actual__user_role__role_bureau__bureau'
+            'user_actual__user_role__role_bureau__bureau',
+            'user_actual__user_role__role_cellule__cellule',
+            'user_actual__user_role__role_cellule__cellule__bureau',
         ).annotate(
             role=F('user_actual__user_role__nom_role'),
             bureau_cellule=F('user_actual__user_role__role_cellule__cellule__nom_cellule'),
             bureau_name=F('user_actual__user_role__role_cellule__cellule__bureau__nom_bureau'),
         )
 
-        return Dossier.objects.prefetch_related(
+        # -----------------------------
+        # 2️⃣ Filtrage Dossier selon rôle
+        # -----------------------------
+
+        # ✅ CHEF BUREAU / ADJOINT / SECRETAIRE → tout voir
+        if role in [
+            Roles.CHEF_BUREAU,
+            Roles.CHEF_ADJOINT_BUREAU,
+            Roles.SECRETARIAT,
+        ]:
+            dossiers = Dossier.objects.all()
+
+        # ✅ CHEF CELLULE / ADJOINT → dossiers de leur cellule
+        elif role in [
+            Roles.CHEF_CELLULE,
+            Roles.CHEF_CELLULE_ADJOINT,
+        ]:
+            cellule = role_obj.role_cellule.cellule
+
+            dossiers = Dossier.objects.filter(
+                dossier__is_active=True,
+                dossier__user_actual__user_role__role_cellule__cellule=cellule
+            ).distinct()
+
+        # ✅ CONSEILLER → dossiers assignés à lui
+        elif role == Roles.CONSEILLER:
+            dossiers = Dossier.objects.filter(
+                dossier__is_active=True,
+                dossier__user_actual=user
+            ).distinct()
+
+        else:
+            dossiers = Dossier.objects.none()
+
+        # -----------------------------
+        # 3️⃣ On garde ton Prefetch optimisé
+        # -----------------------------
+        return dossiers.prefetch_related(
             Prefetch('dossier', queryset=etat_queryset)
-        )
-        
+        ).order_by("-date_creation")
+            
 
 
     # def get_queryset(self):
@@ -82,6 +136,58 @@ class DossierViewSet(viewsets.ModelViewSet):
         
     #     # 2. Les autres ne voient que ce qui leur est assigné
     #     return Dossier.objects.
+    
+    
+    @action(detail=True, methods=["post"], url_path="add-document")
+    @transaction.atomic
+    def add_document(self, request, pk=None):
+        """
+        Ajoute un document au dossier si :
+        - utilisateur authentifié
+        - EtatAvancement actif existe pour ce dossier
+        - user connecté = user_actual
+        """
+
+        user = request.user
+
+        # 1️⃣ Récupérer le dossier
+        dossier = self.get_object()
+
+        # 2️⃣ Trouver automatiquement l'état actif du user sur ce dossier
+        etat = EtatAvancement.objects.filter(
+            dossier=dossier,
+            user_actual=user,
+            is_active=True
+        ).first()
+
+        if not etat:
+            return Response(
+                {
+                    "detail": "Aucun état actif trouvé pour ce dossier et cet utilisateur."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # 3️⃣ Serializer fichier
+        serializer = DocumentCreateSerializer(
+            data=request.data,
+            context={"request": request}
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        # 4️⃣ Création du document avec état auto
+        document = serializer.save(state=etat)
+
+        return Response(
+            {
+                "message": "Document ajouté avec succès.",
+                "document_id": document.id,
+                "dossier_id": dossier.id,
+                "etat_id": etat.id
+            },
+            status=status.HTTP_201_CREATED
+        )
     
     
     @action(detail=True, methods=["get"], url_path="observations")
