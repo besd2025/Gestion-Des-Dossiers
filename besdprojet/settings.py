@@ -118,7 +118,7 @@ DATABASES = {
         'NAME':'dossiers_besd',
         'USER':'dossiers_besd',
         'PASSWORD':'12345678',
-        'HOST':'192.168.88.12',   # ou IP du serveur
+        'HOST':'192.168.88.32',   # ou IP du serveur
         'PORT':'5432',
     }
 }
