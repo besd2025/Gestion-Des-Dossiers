@@ -51,7 +51,7 @@ static/
 .env.local
 
 # Ignore all migrations
-**/migrations/*
+**/migrations/__pycache__/
 
 
 ####################################
